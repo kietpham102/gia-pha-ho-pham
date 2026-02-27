@@ -218,7 +218,111 @@ ALTER TABLE contributions ADD CONSTRAINT contributions_value_length CHECK (char_
 
 
 -- ╔══════════════════════════════════════════════════════════╗
--- ║  6. DỮ LIỆU MẪU DEMO (xóa phần này nếu dùng dữ liệu thật)║
+-- ║  6. CEREMONIES (lịch cúng lễ)                           ║
+-- ╚══════════════════════════════════════════════════════════╝
+
+CREATE TABLE IF NOT EXISTS ceremonies (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    description TEXT,
+    ceremony_date DATE NOT NULL,
+    lunar_date TEXT,                          -- VD: "15/7 ÂL"
+    location TEXT,
+    type TEXT NOT NULL DEFAULT 'OTHER' CHECK (type IN ('GIO','TET','THANH_MINH','VU_LAN','CUNG_RAM','CUNG_MUNG_1','OTHER')),
+    is_recurring BOOLEAN DEFAULT true,
+    person_handle TEXT,                      -- link to people table
+    person_name TEXT,                        -- display name for quick reference
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_ceremonies_date ON ceremonies (ceremony_date);
+CREATE INDEX IF NOT EXISTS idx_ceremonies_type ON ceremonies (type);
+
+CREATE TRIGGER ceremonies_updated_at BEFORE UPDATE ON ceremonies
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+ALTER TABLE ceremonies ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone can read ceremonies" ON ceremonies FOR SELECT USING (true);
+CREATE POLICY "admin can insert ceremonies" ON ceremonies
+    FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "admin can update ceremonies" ON ceremonies
+    FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "admin can delete ceremonies" ON ceremonies
+    FOR DELETE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+
+-- ╔══════════════════════════════════════════════════════════╗
+-- ║  7. CLAN_CONTACTS (danh bạ dòng họ)                    ║
+-- ╚══════════════════════════════════════════════════════════╝
+
+CREATE TABLE IF NOT EXISTS clan_contacts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    full_name TEXT NOT NULL,
+    relation TEXT,                           -- "Trưởng chi", "Thành viên"...
+    phone TEXT,
+    email TEXT,
+    address TEXT,
+    group_name TEXT,                         -- "Ban trị sự", "Chi 1"...
+    notes TEXT,
+    person_handle TEXT,                      -- link to people table
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_clan_contacts_group ON clan_contacts (group_name);
+CREATE INDEX IF NOT EXISTS idx_clan_contacts_name ON clan_contacts (full_name);
+
+CREATE TRIGGER clan_contacts_updated_at BEFORE UPDATE ON clan_contacts
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+ALTER TABLE clan_contacts ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone can read clan_contacts" ON clan_contacts FOR SELECT USING (true);
+CREATE POLICY "admin can insert clan_contacts" ON clan_contacts
+    FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "admin can update clan_contacts" ON clan_contacts
+    FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "admin can delete clan_contacts" ON clan_contacts
+    FOR DELETE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+
+-- ╔══════════════════════════════════════════════════════════╗
+-- ║  8. EDUCATION_FUND (quỹ khuyến học)                     ║
+-- ╚══════════════════════════════════════════════════════════╝
+
+CREATE TABLE IF NOT EXISTS education_fund (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    type TEXT NOT NULL CHECK (type IN ('INCOME', 'EXPENSE')),
+    amount NUMERIC(15, 0) NOT NULL CHECK (amount > 0),
+    description TEXT NOT NULL,
+    contributor_name TEXT,                   -- người đóng góp
+    recipient_name TEXT,                     -- người nhận (học bổng)
+    category TEXT NOT NULL DEFAULT 'OTHER' CHECK (category IN ('DONATION','SCHOLARSHIP','AWARD','SUPPLY','EVENT','OTHER')),
+    academic_year TEXT,                      -- "2025-2026"
+    receipt_note TEXT,
+    transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_education_fund_date ON education_fund (transaction_date);
+CREATE INDEX IF NOT EXISTS idx_education_fund_type ON education_fund (type);
+
+CREATE TRIGGER education_fund_updated_at BEFORE UPDATE ON education_fund
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+ALTER TABLE education_fund ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "anyone can read education_fund" ON education_fund FOR SELECT USING (true);
+CREATE POLICY "admin can insert education_fund" ON education_fund
+    FOR INSERT WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "admin can update education_fund" ON education_fund
+    FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "admin can delete education_fund" ON education_fund
+    FOR DELETE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+
+-- ╔══════════════════════════════════════════════════════════╗
+-- ║  9. DỮ LIỆU MẪU DEMO (xóa phần này nếu dùng dữ liệu thật)║
 -- ╚══════════════════════════════════════════════════════════╝
 
 -- Dòng họ mẫu: Họ Phạm — 4 thế hệ, 15 thành viên

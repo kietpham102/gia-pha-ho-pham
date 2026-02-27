@@ -12,7 +12,7 @@ export default function MainLayout({
     const [mobileOpen, setMobileOpen] = useState(false);
 
     return (
-        <div className="flex min-h-screen overflow-hidden">
+        <div className="flex min-h-screen">
             {/* Desktop sidebar — hidden on mobile */}
             <Sidebar />
 

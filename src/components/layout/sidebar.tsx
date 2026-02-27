@@ -17,6 +17,7 @@ import {
     Contact,
     Newspaper,
     CalendarDays,
+    GraduationCap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,9 @@ const navItems = [
     { href: '/feed', label: 'Bảng tin', icon: Newspaper },
     { href: '/directory', label: 'Danh bạ', icon: Contact },
     { href: '/events', label: 'Sự kiện', icon: CalendarDays },
+    { href: '/ceremonies', label: 'Lịch cúng lễ', icon: CalendarDays },
+    { href: '/clan-contacts', label: 'Danh bạ dòng họ', icon: Contact },
+    { href: '/education-fund', label: 'Quỹ khuyến học', icon: GraduationCap },
     { href: '/tree', label: 'Cây gia phả', icon: TreePine },
     { href: '/book', label: 'Sách gia phả', icon: BookOpen },
     { href: '/people', label: 'Thành viên', icon: Users },
@@ -38,6 +42,9 @@ const navItems = [
 const adminItems = [
     { href: '/admin/users', label: 'Quản lý Users', icon: Shield },
     { href: '/admin/edits', label: 'Kiểm duyệt', icon: ClipboardCheck },
+    { href: '/admin/ceremonies', label: 'Lịch cúng lễ', icon: CalendarDays },
+    { href: '/admin/contacts', label: 'Danh bạ dòng họ', icon: Contact },
+    { href: '/admin/education-fund', label: 'Quỹ khuyến học', icon: GraduationCap },
     { href: '/admin/audit', label: 'Audit Log', icon: FileText },
     { href: '/admin/backup', label: 'Backup', icon: Database },
 ];
